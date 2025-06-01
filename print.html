@@ -1,0 +1,495 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Notes on Lean4</title>
+        <meta name="robots" content="noindex">
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="highlight-css" href="highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+        <!-- MathJax -->
+        <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="toc.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Notes on Lean4</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="euler-problem-1"><a class="header" href="#euler-problem-1">Euler Problem #1</a></h1>
+<h2 id="problem-statement"><a class="header" href="#problem-statement">Problem Statement</a></h2>
+<p><a href="https://projecteuler.net/problem=1" title="Project Euler">Euler Problem #1</a> asks:</p>
+<blockquote>
+<p>If we list all the natural numbers below \(10\) that are multiples of \(3\) or \(5\), we get \(3, 5, 6\) and \(9\). The sum of these multiples is \(23\).<br />
+Find the sum of all the multiples of \(3\) or \(5\) below \(1000\).</p>
+</blockquote>
+<h2 id="simple-solution"><a class="header" href="#simple-solution">Simple Solution</a></h2>
+<p>The simplest solution is to simply iterate through all numbers, filtering out
+those not divisible by 3 or 5, and summing the results. This is fairly trivial
+in Lean.</p>
+<pre><code class="language-lean">def sum_multiple_3_or_5 (n : Nat) : Nat
+  := List.range n
+  |&gt; List.filter (λ n ↦ n % 3 == 0 || n % 5 == 0)
+  |&gt; List.sum
+</code></pre>
+<p>And, indeed, we get the right answer!</p>
+<pre><code class="language-lean">#eval sum_multiple_3_or_5 10   -- Prints 23
+#eval sum_multiple_3_or_5 1000 -- Prints 233168
+</code></pre>
+<h2 id="efficient-solution"><a class="header" href="#efficient-solution">Efficient Solution</a></h2>
+<p>The author <em>hk</em> gives a much better way of solving this,
+which is much more efficient for larger numbers of <code>n</code>.</p>
+<p>If we sum the numbers divisible by \(3\), and the numbers divisible by \(5\) (and take away numbers divisible by \(15\) to avoid double counting), then we should get the same answer.</p>
+<p>For \(n=3\) this is:</p>
+<p>\[3+6+9+12+\dots+999=3 \times (1+2+3+4+\dots+333)\]</p>
+<p>And for \(n=5\) we would get:
+\[5+10+15+\dots+995=5\times(1+2+\dots+199)\]</p>
+<blockquote>
+<p>[!IMPORTANT]
+Note that \(199=995/5\), but also \(999/5\) rounded down to the nearest integer.</p>
+</blockquote>
+<p>Now, we know that the sum of a finite set of natural numbers is a <a href="https://en.wikipedia.org/wiki/Triangular_number" title="Triangle Numbers">triangle number</a>, that is:</p>
+<p>\[1 + 2 + 3 \dots + p - 1 = \frac{p (p -1)} 2\]</p>
+<p>Which means our lean program becomes:</p>
+<pre><code class="language-lean">def sum_divisible_by (t n : Nat) : Nat :=
+    let p := (t - 1) / n
+    n * (p + 1) * p  / 2
+
+def sum_multiple_3_or_5' (n : Nat) : Nat :=
+  let sn := sum_divisible_by n
+  sn 3 + sn 5 - sn 15
+</code></pre>
+<p>And indeed, we get the same answer when we evaluate this number:</p>
+<pre><code class="language-lean">#eval sum_multiple_3_or_5' 10   -- Prints 23
+#eval sum_multiple_3_or_5' 1000 -- Prints 233168
+</code></pre>
+<h2 id="proving-it"><a class="header" href="#proving-it">Proving it</a></h2>
+<p>Lean4 is a proof-solving language, so we can take it a step further.
+I will present a definition for the theorem to prove that both statements are
+equivalent for all natural numbers.</p>
+<p>At the very top level we have:</p>
+<pre><code class="language-lean">∀ (n : Nat), sum_multiple_3_or_5 n = sum_multiple_3_or_5' n
+</code></pre>
+<p>Which can be unfolded to give the definition:</p>
+<pre><code class="language-lean">(List.filter (λ n ↦ n % 3 == 0 || n % 5 == 0) (List.range n)).sum =
+  sum_divisible_by n 3 + sum_divisible_by n 5 - sum_divisible_by n 15
+</code></pre>
+<p>Further down the page we <a href="euler_1.html#sum_divisible_by_eq_range_filter_sum" title="sum_divisible_by_eq_range_filter_sum">show a proof</a> that <code>sum_divisible_by n m = (List.filter (λ x ↦ x % m == 0) (List.range n)).sum</code>. Giving:</p>
+<pre><code class="language-lean">(List.filter (λ n ↦ n % 3 == 0 || n % 5 == 0) (List.range n)).sum =
+(List.filter (λ x ↦ x % 3 == 0) (List.range n)).sum + 
+(List.filter (λ x ↦ x % 5 == 0) (List.range n)).sum -
+(List.filter (λ x ↦ x % 15 == 0) (List.range n)).sum
+</code></pre>
+<p>Likewise, we will show an <a href="euler_1.html#filter_or_sum_eq_filter_add" title="filter_or_sum_eq_filter_add">additional proof</a> showing that <code>(List.filter (λ n ↦ n % 3 == 0 || n % 5 == 0) (List.range n)).sum</code> is equivelent to:</p>
+<pre><code class="language-lean">(List.filter (λ n ↦ n % 3 == 0) (List.range n)).sum + 
+(List.filter (λ n ↦ n % 5 == 0) (List.range n)).sum -
+(List.filter (λ n ↦ n % 3 == 0 &amp;&amp; n % 5 == 0) (List.range n)).sum
+</code></pre>
+<p>giving:</p>
+<pre><code class="language-lean">(List.filter (λ n ↦ n % 3 == 0) (List.range n)).sum + 
+(List.filter (λ n ↦ n % 5 == 0) (List.range n)).sum -
+(List.filter (λ n ↦ n % 3 == 0 &amp;&amp; n % 5 == 0) (List.range n)).sum =
+(List.filter (λ x ↦ x % 3 == 0) (List.range n)).sum + 
+(List.filter (λ x ↦ x % 5 == 0) (List.range n)).sum -
+(List.filter (λ x ↦ x % 15 == 0) (List.range n)).sum
+</code></pre>
+<p>Finally, we just need lemma to prove <code>(λ x ↦ x % 15 == 0)</code> is equivalent
+to <code>(λ n ↦ n % 3 == 0 &amp;&amp; n % 5 == 0)</code>. Proven by:</p>
+<pre><code class="language-lean">lemma x_mod_3_and_x_mod_5_eq_mod_15 (n : Nat) : (n % 15 == 0) = (n % 3 == 0 &amp;&amp; n % 5 == 0) := by
+  have (n : Nat) : n % 15 = 0 ↔ (n % 3 = 0 ∧ n % 5 = 0) := by omega
+  by_cases h : (n % 15 = 0)
+  case pos =&gt; rw [h]; have ⟨h3, h5⟩ := (this n).mp h; simp [h3, h5]
+  case neg =&gt;
+    rw [beq_eq_false_iff_ne.mpr h]
+    apply ((mt (this n).mpr)) at h
+    cases Classical.not_and_iff_not_or_not.mp h
+      &lt;;&gt; (rename_i h'; simp [h'])
+</code></pre>
+<p>Meaning our final proof is:</p>
+<pre><code class="language-lean">theorem sum_divisible_3_5_by_eq_range (n : Nat):
+  sum_multiple_3_or_5 n = sum_multiple_3_or_5' n := by
+  unfold sum_multiple_3_or_5 sum_multiple_3_or_5'
+  simp
+  rw [filter_or_sum_eq_filter_add]
+  repeat rw [sum_divisible_by_eq_range_filter_sum]
+  rw [List.filter_congr λ x a ↦ x_mod_3_and_x_mod_5_eq_mod_15 x]
+</code></pre>
+<h3 id="sum_divisible_by_eq_range_filter_sum"><a class="header" href="#sum_divisible_by_eq_range_filter_sum">sum_divisible_by_eq_range_filter_sum</a></h3>
+<p>In this section I will prove the first required theorem:</p>
+<pre><code class="language-lean4">∀ (n m : Nat), 
+sum_divisible_by n m = (List.filter (λ x ↦ x % m == 0) (List.range n)).sum
+</code></pre>
+<p>To do this we need to prove the relationship between range, sum, and triangle numbers themselves:</p>
+<pre><code class="language-lean">lemma list_range_sum_triangle (n : Nat) :
+  (List.range n).sum = n * (n - 1) / 2 := by
+  induction n with
+  | zero =&gt; simp
+  | succ n' nh =&gt;
+    simp [List.range_succ, nh]
+    apply Nat.add_right_cancel (m:=n')
+    simp [← Nat.triangle_succ]
+
+lemma list_range_succ_sum_triangle (n : Nat) :
+  (List.range (n + 1)).sum = (n + 1) * n / 2 :=
+  list_range_sum_triangle (n + 1)
+</code></pre>
+<p>Which by induction shows that</p>
+<p>\[ \texttt{List.range}\left(n\right)\texttt{.sum} = \frac{n \cdot (n - 1)}{2} \]</p>
+<p>and</p>
+<p>\[ \texttt{List.range}\left(n + 1\right)\texttt{.sum} = \frac{(n + 1) \cdot n}{2} \]</p>
+<p>To work with the associativity of divisibility, we also need to prove \((x + 1) \cdot x\) is divisible by \(2\).</p>
+<pre><code class="language-lean">lemma x_mul_x_succ_dvd_2 (x : Nat) : 2 ∣ (x + 1) * x := by
+  induction x with
+  | zero =&gt; simp
+  | succ x' hx =&gt;
+    simp [Nat.add_assoc]
+    rw [Nat.add_mul, Nat.mul_comm]
+    apply Nat.dvd_add
+    . exact hx
+    . simp
+</code></pre>
+<p>This is enough errata to now satisfy the relationship:</p>
+<pre><code class="language-lean">theorem sum_divisible_by_eq_range_sum (n m : Nat):
+  sum_divisible_by m n = n * (List.range ((m - 1) / n + 1)).sum := by
+  unfold sum_divisible_by
+  simp
+  rw [ Nat.mul_assoc
+     , Nat.mul_div_assoc _ (x_mul_x_succ_dvd_2 _)
+     , ← list_range_succ_sum_triangle (n:= (m - 1) / n)
+     ]
+</code></pre>
+<p>Which shows that</p>
+<p>\[\begin{eqnarray}
+\frac{n \cdot \left( \frac{m - 1}{n} + 1\right)\left( \frac{m - 1}{n}\right)}{2} = \\
+n \cdot \frac{\left( \frac{m - 1}{n} + 1\right)\left( \frac{m - 1}{n}\right)}{2} = \\
+n \cdot \texttt{List.range}\left(\frac{m - 1}{n} + 1\right)\texttt{.sum}
+\end{eqnarray}\]</p>
+<p>Next steps are to define the above proof in terms of <code>filter</code>. That is:</p>
+<pre><code class="language-lean4">∀ (n m : Nat), 
+n * (List.range ((m - 1) / n + 1)).sum = 
+(List.filter (fun x ↦ x % n == 0) (List.range m)).sum
+</code></pre>
+<p>We must first define some more basic lemma. Both should be fairly obvious:</p>
+<pre><code class="language-lean">lemma range1_eq_zero : List.range 1 = [0] := rfl
+
+lemma list_filter_eq_nil_sum (ns : List Nat) : (List.filter (· == 0) ns).sum = 0 := by
+  induction ns with
+  | nil =&gt; simp
+  | cons n ns' hn =&gt;
+    simp [List.filter_cons]
+    by_cases nh : n = 0 &lt;;&gt; simp [nh, hn]
+</code></pre>
+<p>This is enough to prove our first important theorem <code>sum_divisible_by_eq_range_filter_sum</code>.</p>
+<pre><code class="language-lean">theorem sum_divisible_by_eq_range_filter_sum (n m : Nat):
+  sum_divisible_by m n =
+  ((List.range m).filter (· % n == 0)).sum := by
+  rw [sum_divisible_by_eq_range_sum]
+  by_cases hzn : 0 &lt; n
+  case neg =&gt;
+    simp at hzn
+    simp [hzn, list_filter_eq_nil_sum]
+  case pos =&gt;
+    induction m with
+    | zero =&gt; simp; apply Or.inr; simp [range1_eq_zero]
+    | succ m' hm =&gt;
+      by_cases hzm : 0 &lt; m'
+      case neg =&gt; simp at hzm; simp [hzm, range1_eq_zero]
+      case pos =&gt;
+        conv =&gt; rhs
+                rw [ List.range_add
+                  , range1_eq_zero
+                  , List.filter_append
+                  , List.sum_append
+                  , ← hm ]
+        unfold List.filter
+        simp; split
+        case h_1 hr =&gt;
+          apply eq_of_beq at hr
+          have := Nat.mul_div_cancel' $ Nat.dvd_of_mod_eq_zero hr
+          conv =&gt; lhs; simp [List.range_add, range1_eq_zero, Nat.mul_add, this]
+          simp; apply Or.inl
+          have : m' / n = (m' - 1) / n + 1 := by
+            cases m'
+            . contradiction
+            . simp; exact Nat.succ_div_of_mod_eq_zero hr
+          rw [this]
+        case h_2 hr =&gt;
+          apply ne_of_beq_false at hr
+          simp
+          apply Or.inl
+          have : m' / n = (m' - 1) / n := by
+            cases m'
+            . contradiction
+            . simp; exact Nat.succ_div_of_mod_ne_zero hr
+          rw [this]
+</code></pre>
+<h3 id="filter_or_sum_eq_filter_add"><a class="header" href="#filter_or_sum_eq_filter_add">filter_or_sum_eq_filter_add</a></h3>
+<p>This theorem is larger.  We need to prove</p>
+<pre><code class="language-lean4">∀ (l₁ : List Nat) (f g : Nat -&gt; Bool),
+  (l₁.filter (λ n ↦ f n || g n)).sum = (l₁.filter f).sum +
+  (l₁.filter g).sum - (l₁.filter (λ n ↦ f n &amp;&amp; g n)).sum 
+</code></pre>
+<p>The following lemma is required.</p>
+<pre><code class="language-lean">lemma filter_f_g_sum_le_filter_g_sum (f : Nat -&gt; Bool) (g : Nat -&gt; Bool) (ns : List Nat) :
+  (List.filter (λ n ↦ f n &amp;&amp; g n) ns).sum ≤ (List.filter g ns).sum := by
+  induction ns with
+  | nil =&gt; simp
+  | cons n ns' hn =&gt;
+    repeat rw [List.filter_cons]
+    by_cases g n
+    case pos hg =&gt;
+      simp [hg]
+      split
+      . simp [hn]
+      . rw [Nat.add_comm]; apply Nat.le_add_right_of_le; exact hn
+    case neg hg =&gt; simp [hg]; exact hn
+</code></pre>
+<p>Which is a long-winded way of stating an obvious fact, that a filter <code>(f n &amp;&amp; g n)</code> will produce a smaller or equal sum to <code>g n</code>.</p>
+<p>This allows us to deal with some inequalities produced in our next important proof
+<code>filter_or_sum_eq_filter_add</code>:</p>
+<pre><code class="language-lean">lemma filter_or_sum_eq_filter_add (l₁ : List Nat) (f g : Nat -&gt; Bool) :
+  (l₁.filter (λ n ↦ f n || g n)).sum = (l₁.filter f).sum +
+  (l₁.filter g).sum - (l₁.filter (λ n ↦ f n &amp;&amp; g n)).sum := by
+  induction l₁ with
+  | nil =&gt; simp
+  | cons n ns hl =&gt;
+    repeat rw [List.filter_cons]
+    by_cases g n
+    case pos hg =&gt;
+      repeat rw [hg];
+      by_cases f n
+      case pos hf =&gt;
+        simp [hf]
+        rw [ Nat.add_sub_assoc
+             (Nat.add_le_add_left (filter_f_g_sum_le_filter_g_sum _ _ _) n)
+           , Nat.add_sub_add_left
+           , Nat.add_assoc]
+        apply congrArg (n + · )
+        rw [← Nat.add_sub_assoc (filter_f_g_sum_le_filter_g_sum _ _ _)]
+        exact hl
+      case neg hf =&gt;
+        simp [hf]
+        rw [← Nat.add_assoc]
+        conv =&gt; rhs; lhs; lhs; rw [Nat.add_comm]
+        rw [Nat.add_sub_assoc (filter_f_g_sum_le_filter_g_sum _ _ _), Nat.add_assoc]
+        apply congrArg (n + · )
+        rw [← Nat.add_sub_assoc (filter_f_g_sum_le_filter_g_sum _ _ _)]
+        exact hl
+    case neg hg =&gt;
+      repeat simp [hg]
+      by_cases f n
+      case pos hf =&gt;
+        simp [hf]
+        rw [Nat.add_sub_assoc (filter_f_g_sum_le_filter_g_sum _ _ _), Nat.add_assoc]
+        apply congrArg (n + · )
+        rw [← Nat.add_sub_assoc (filter_f_g_sum_le_filter_g_sum _ _ _)]
+        exact hl
+      case neg hf =&gt;
+        simp [hf]
+        exact hl
+</code></pre>
+<h1 id="conclusion"><a class="header" href="#conclusion">Conclusion</a></h1>
+<p>Thereby, this completes the computer-aided proof of the first Euler problem.</p>
+<p>I am not a lean expert.
+It took me 3 weeks to eek this out.
+I don't know why I did this to myself.</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr.min.js"></script>
+        <script src="mark.min.js"></script>
+        <script src="searcher.js"></script>
+
+        <script src="clipboard.min.js"></script>
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+        <script>
+        window.addEventListener('load', function() {
+            MathJax.Hub.Register.StartupHook('End', function() {
+                window.setTimeout(window.print, 100);
+            });
+        });
+        </script>
+
+    </div>
+    </body>
+</html>
