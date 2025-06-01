@@ -1,0 +1,11 @@
+[book]
+authors = ["Archibald Neil MacDonald"]
+language = "en"
+multilingual = false
+src = "src"
+title = "Notes on Lean4"
+
+[output.html]
+mathjax-support = true
+
+[preprocessor.alerts]
