@@ -3,13 +3,13 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Notes on Lean4</title>
+        <title>Lean4 Commonplace Workbook</title>
         <meta name="robots" content="noindex">
 
 
         <!-- Custom HTML head -->
 
-        <meta name="description" content="">
+        <meta name="description" content="Personal workbook on solving Euler Lean4 problems">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="theme-color" content="#ffffff">
 
@@ -137,7 +137,7 @@
                         </button>
                     </div>
 
-                    <h1 class="menu-title">Notes on Lean4</h1>
+                    <h1 class="menu-title">Lean4 Commonplace Workbook</h1>
 
                     <div class="right-buttons">
                         <a href="print.html" title="Print this book" aria-label="Print this book">
@@ -169,7 +169,11 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="euler-problem-1"><a class="header" href="#euler-problem-1">Euler Problem #1</a></h1>
+                        <h1 id="introduction"><a class="header" href="#introduction">Introduction</a></h1>
+<p>A personal workbook for improving my Lean4 skills.</p>
+<p>My focus is writing a basic "developer" solution to a Euler problem,
+and proving it is equivalent to better mathematical solutions (even if much less efficient).</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="euler-problem-1"><a class="header" href="#euler-problem-1">Euler Problem #1</a></h1>
 <h2 id="problem-statement"><a class="header" href="#problem-statement">Problem Statement</a></h2>
 <p><a href="https://projecteuler.net/problem=1" title="Project Euler">Euler Problem #1</a> asks:</p>
 <blockquote>
@@ -189,7 +193,7 @@ in Lean.</p>
 <pre><code class="language-lean">#eval sum_multiple_3_or_5 10   -- Prints 23
 #eval sum_multiple_3_or_5 1000 -- Prints 233168
 </code></pre>
-<h2 id="efficient-solution"><a class="header" href="#efficient-solution">Efficient Solution</a></h2>
+<h2 id="hks-solution"><a class="header" href="#hks-solution"><em>hk</em>'s solution</a></h2>
 <p>The author <em>hk</em> gives a much better way of solving this,
 which is much more efficient for larger numbers of <code>n</code>.</p>
 <p>If we sum the numbers divisible by \(3\), and the numbers divisible by \(5\) (and take away numbers divisible by \(15\) to avoid double counting), then we should get the same answer.</p>
@@ -199,11 +203,11 @@ which is much more efficient for larger numbers of <code>n</code>.</p>
 \[5+10+15+\dots+995=5\times(1+2+\dots+199)\]</p>
 <blockquote>
 <p>[!IMPORTANT]
-Note that \(199=995/5\), but also \(999/5\) rounded down to the nearest integer.</p>
+Note that \(199=995/5\), but also \(199=999/5\) due to integer rounding.</p>
 </blockquote>
 <p>Now, we know that the sum of a finite set of natural numbers is a <a href="https://en.wikipedia.org/wiki/Triangular_number" title="Triangle Numbers">triangle number</a>, that is:</p>
 <p>\[1 + 2 + 3 \dots + p - 1 = \frac{p (p -1)} 2\]</p>
-<p>Which means our lean program becomes:</p>
+<p>Meaning we can rewrite the solution as</p>
 <pre><code class="language-lean">def sum_divisible_by (t n : Nat) : Nat :=
     let p := (t - 1) / n
     n * (p + 1) * p  / 2
@@ -212,67 +216,15 @@ def sum_multiple_3_or_5' (n : Nat) : Nat :=
   let sn := sum_divisible_by n
   sn 3 + sn 5 - sn 15
 </code></pre>
-<p>And indeed, we get the same answer when we evaluate this number:</p>
+<p>Which for any given chosen input, seems to work:</p>
 <pre><code class="language-lean">#eval sum_multiple_3_or_5' 10   -- Prints 23
 #eval sum_multiple_3_or_5' 1000 -- Prints 233168
 </code></pre>
-<h2 id="proving-it"><a class="header" href="#proving-it">Proving it</a></h2>
-<p>Lean4 is a proof-solving language, so we can take it a step further.
-I will present a definition for the theorem to prove that both statements are
-equivalent for all natural numbers.</p>
-<p>At the very top level we have:</p>
-<pre><code class="language-lean">∀ (n : Nat), sum_multiple_3_or_5 n = sum_multiple_3_or_5' n
-</code></pre>
-<p>Which can be unfolded to give the definition:</p>
-<pre><code class="language-lean">(List.filter (λ n ↦ n % 3 == 0 || n % 5 == 0) (List.range n)).sum =
-  sum_divisible_by n 3 + sum_divisible_by n 5 - sum_divisible_by n 15
-</code></pre>
-<p>Further down the page we <a href="euler_1.html#sum_divisible_by_eq_range_filter_sum" title="sum_divisible_by_eq_range_filter_sum">show a proof</a> that <code>sum_divisible_by n m = (List.filter (λ x ↦ x % m == 0) (List.range n)).sum</code>. Giving:</p>
-<pre><code class="language-lean">(List.filter (λ n ↦ n % 3 == 0 || n % 5 == 0) (List.range n)).sum =
-(List.filter (λ x ↦ x % 3 == 0) (List.range n)).sum + 
-(List.filter (λ x ↦ x % 5 == 0) (List.range n)).sum -
-(List.filter (λ x ↦ x % 15 == 0) (List.range n)).sum
-</code></pre>
-<p>Likewise, we will show an <a href="euler_1.html#filter_or_sum_eq_filter_add" title="filter_or_sum_eq_filter_add">additional proof</a> showing that <code>(List.filter (λ n ↦ n % 3 == 0 || n % 5 == 0) (List.range n)).sum</code> is equivelent to:</p>
-<pre><code class="language-lean">(List.filter (λ n ↦ n % 3 == 0) (List.range n)).sum + 
-(List.filter (λ n ↦ n % 5 == 0) (List.range n)).sum -
-(List.filter (λ n ↦ n % 3 == 0 &amp;&amp; n % 5 == 0) (List.range n)).sum
-</code></pre>
-<p>giving:</p>
-<pre><code class="language-lean">(List.filter (λ n ↦ n % 3 == 0) (List.range n)).sum + 
-(List.filter (λ n ↦ n % 5 == 0) (List.range n)).sum -
-(List.filter (λ n ↦ n % 3 == 0 &amp;&amp; n % 5 == 0) (List.range n)).sum =
-(List.filter (λ x ↦ x % 3 == 0) (List.range n)).sum + 
-(List.filter (λ x ↦ x % 5 == 0) (List.range n)).sum -
-(List.filter (λ x ↦ x % 15 == 0) (List.range n)).sum
-</code></pre>
-<p>Finally, we just need lemma to prove <code>(λ x ↦ x % 15 == 0)</code> is equivalent
-to <code>(λ n ↦ n % 3 == 0 &amp;&amp; n % 5 == 0)</code>. Proven by:</p>
-<pre><code class="language-lean">lemma x_mod_3_and_x_mod_5_eq_mod_15 (n : Nat) : (n % 15 == 0) = (n % 3 == 0 &amp;&amp; n % 5 == 0) := by
-  have (n : Nat) : n % 15 = 0 ↔ (n % 3 = 0 ∧ n % 5 = 0) := by omega
-  by_cases h : (n % 15 = 0)
-  case pos =&gt; rw [h]; have ⟨h3, h5⟩ := (this n).mp h; simp [h3, h5]
-  case neg =&gt;
-    rw [beq_eq_false_iff_ne.mpr h]
-    apply ((mt (this n).mpr)) at h
-    cases Classical.not_and_iff_not_or_not.mp h
-      &lt;;&gt; (rename_i h'; simp [h'])
-</code></pre>
-<p>Meaning our final proof is:</p>
-<pre><code class="language-lean">theorem sum_divisible_3_5_by_eq_range (n : Nat):
-  sum_multiple_3_or_5 n = sum_multiple_3_or_5' n := by
-  unfold sum_multiple_3_or_5 sum_multiple_3_or_5'
-  simp
-  rw [filter_or_sum_eq_filter_add]
-  repeat rw [sum_divisible_by_eq_range_filter_sum]
-  rw [List.filter_congr λ x a ↦ x_mod_3_and_x_mod_5_eq_mod_15 x]
-</code></pre>
-<h3 id="sum_divisible_by_eq_range_filter_sum"><a class="header" href="#sum_divisible_by_eq_range_filter_sum">sum_divisible_by_eq_range_filter_sum</a></h3>
-<p>In this section I will prove the first required theorem:</p>
-<pre><code class="language-lean4">∀ (n m : Nat), 
-sum_divisible_by n m = (List.filter (λ x ↦ x % m == 0) (List.range n)).sum
-</code></pre>
-<p>To do this we need to prove the relationship between range, sum, and triangle numbers themselves:</p>
+<h2 id="golfing-it"><a class="header" href="#golfing-it">Golfing it</a></h2>
+<p>Our aim is to prove that <code>sum_multiple_3_or_5</code> and <code>sum_multiple_3_or_5'</code> are
+equivalent in lean's proof solving language, to do this, we need to prove that combinations
+of <code>List.range</code>, <code>List.sum</code>, and <code>List.filter</code> have simple arithmetic equivalents.</p>
+<p>First, let's focus on the relationship between triangle numbers and sums of lists, which we can prove in lean:</p>
 <pre><code class="language-lean">lemma list_range_sum_triangle (n : Nat) :
   (List.range n).sum = n * (n - 1) / 2 := by
   induction n with
@@ -286,22 +238,7 @@ lemma list_range_succ_sum_triangle (n : Nat) :
   (List.range (n + 1)).sum = (n + 1) * n / 2 :=
   list_range_sum_triangle (n + 1)
 </code></pre>
-<p>Which by induction shows that</p>
-<p>\[ \texttt{List.range}\left(n\right)\texttt{.sum} = \frac{n \cdot (n - 1)}{2} \]</p>
-<p>and</p>
-<p>\[ \texttt{List.range}\left(n + 1\right)\texttt{.sum} = \frac{(n + 1) \cdot n}{2} \]</p>
-<p>To work with the associativity of divisibility, we also need to prove \((x + 1) \cdot x\) is divisible by \(2\).</p>
-<pre><code class="language-lean">lemma x_mul_x_succ_dvd_2 (x : Nat) : 2 ∣ (x + 1) * x := by
-  induction x with
-  | zero =&gt; simp
-  | succ x' hx =&gt;
-    simp [Nat.add_assoc]
-    rw [Nat.add_mul, Nat.mul_comm]
-    apply Nat.dvd_add
-    . exact hx
-    . simp
-</code></pre>
-<p>This is enough errata to now satisfy the relationship:</p>
+<p>Meaning we have enough to solve the first step, rewriting <code>sum_divisible_by</code> in terms of <code>List.range</code> and <code>List.sum</code>.</p>
 <pre><code class="language-lean">theorem sum_divisible_by_eq_range_sum (n m : Nat):
   sum_divisible_by m n = n * (List.range ((m - 1) / n + 1)).sum := by
   unfold sum_divisible_by
@@ -311,28 +248,8 @@ lemma list_range_succ_sum_triangle (n : Nat) :
      , ← list_range_succ_sum_triangle (n:= (m - 1) / n)
      ]
 </code></pre>
-<p>Which shows that</p>
-<p>\[\begin{eqnarray}
-\frac{n \cdot \left( \frac{m - 1}{n} + 1\right)\left( \frac{m - 1}{n}\right)}{2} = \\
-n \cdot \frac{\left( \frac{m - 1}{n} + 1\right)\left( \frac{m - 1}{n}\right)}{2} = \\
-n \cdot \texttt{List.range}\left(\frac{m - 1}{n} + 1\right)\texttt{.sum}
-\end{eqnarray}\]</p>
-<p>Next steps are to define the above proof in terms of <code>filter</code>. That is:</p>
-<pre><code class="language-lean4">∀ (n m : Nat), 
-n * (List.range ((m - 1) / n + 1)).sum = 
-(List.filter (fun x ↦ x % n == 0) (List.range m)).sum
-</code></pre>
-<p>We must first define some more basic lemma. Both should be fairly obvious:</p>
-<pre><code class="language-lean">lemma range1_eq_zero : List.range 1 = [0] := rfl
-
-lemma list_filter_eq_nil_sum (ns : List Nat) : (List.filter (· == 0) ns).sum = 0 := by
-  induction ns with
-  | nil =&gt; simp
-  | cons n ns' hn =&gt;
-    simp [List.filter_cons]
-    by_cases nh : n = 0 &lt;;&gt; simp [nh, hn]
-</code></pre>
-<p>This is enough to prove our first important theorem <code>sum_divisible_by_eq_range_filter_sum</code>.</p>
+<p>Next is a much more difficult and unwieldy proof, where we must then rewrite <code>sum_divisible_by</code>
+in terms of <code>List.filter</code></p>
 <pre><code class="language-lean">theorem sum_divisible_by_eq_range_filter_sum (n m : Nat):
   sum_divisible_by m n =
   ((List.range m).filter (· % n == 0)).sum := by
@@ -343,7 +260,7 @@ lemma list_filter_eq_nil_sum (ns : List Nat) : (List.filter (· == 0) ns).sum = 
     simp [hzn, list_filter_eq_nil_sum]
   case pos =&gt;
     induction m with
-    | zero =&gt; simp; apply Or.inr; simp [range1_eq_zero]
+    | zero =&gt; simp
     | succ m' hm =&gt;
       by_cases hzm : 0 &lt; m'
       case neg =&gt; simp at hzm; simp [hzm, range1_eq_zero]
@@ -376,76 +293,186 @@ lemma list_filter_eq_nil_sum (ns : List Nat) : (List.filter (· == 0) ns).sum = 
             . simp; exact Nat.succ_div_of_mod_ne_zero hr
           rw [this]
 </code></pre>
-<h3 id="filter_or_sum_eq_filter_add"><a class="header" href="#filter_or_sum_eq_filter_add">filter_or_sum_eq_filter_add</a></h3>
-<p>This theorem is larger.  We need to prove</p>
-<pre><code class="language-lean4">∀ (l₁ : List Nat) (f g : Nat -&gt; Bool),
-  (l₁.filter (λ n ↦ f n || g n)).sum = (l₁.filter f).sum +
-  (l₁.filter g).sum - (l₁.filter (λ n ↦ f n &amp;&amp; g n)).sum 
+<p>This gives us enough of a proof such that  we can now manipulate both functions and show they
+are equivalent</p>
+<pre><code class="language-lean">theorem sum_divisible_3_5_by_eq_range (n : Nat):
+  sum_multiple_3_or_5 n = sum_multiple_3_or_5' n := by
+  unfold sum_multiple_3_or_5 sum_multiple_3_or_5'
+  simp
+  rw [filter_or_sum_eq_filter_add]
+  repeat rw [sum_divisible_by_eq_range_filter_sum]
+  rw [List.filter_congr λ x a ↦ x_mod_3_and_x_mod_5_eq_mod_15 x]
 </code></pre>
-<p>The following lemma is required.</p>
-<pre><code class="language-lean">lemma filter_f_g_sum_le_filter_g_sum (f : Nat -&gt; Bool) (g : Nat -&gt; Bool) (ns : List Nat) :
-  (List.filter (λ n ↦ f n &amp;&amp; g n) ns).sum ≤ (List.filter g ns).sum := by
-  induction ns with
-  | nil =&gt; simp
-  | cons n ns' hn =&gt;
-    repeat rw [List.filter_cons]
-    by_cases g n
-    case pos hg =&gt;
-      simp [hg]
-      split
-      . simp [hn]
-      . rw [Nat.add_comm]; apply Nat.le_add_right_of_le; exact hn
-    case neg hg =&gt; simp [hg]; exact hn
+<div style="break-before: page; page-break-before: always;"></div><h1 id="euler-problem-2"><a class="header" href="#euler-problem-2">Euler Problem #2</a></h1>
+<h2 id="problem-statement-1"><a class="header" href="#problem-statement-1">Problem Statement</a></h2>
+<p><a href="https://projecteuler.net/problem=2" title="Project Euler">Euler Problem #2</a> asks:</p>
+<blockquote>
+<p>Each new term in the Fibonacci sequence is generated by adding the previous two terms. By starting with and , the first terms will be:
+\[1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, \dots \]
+By considering the terms in the Fibonacci sequence whose values do not exceed four million, find the sum of the even-valued terms.</p>
+</blockquote>
+<h2 id="simple-solution-1"><a class="header" href="#simple-solution-1">Simple solution</a></h2>
+<p>First let's define an implementation of the Fibonacci sequence:</p>
+<pre><code class="language-lean">def Fibs (index : Nat) : List Nat :=
+  let rec impl (index a b : Nat) : List Nat :=
+    match index with
+    | 0 =&gt; [a]
+    | 1 =&gt; [a, b]
+    | (i + 1) =&gt; a :: impl i b (a + b)
+  impl index 1 1
 </code></pre>
-<p>Which is a long-winded way of stating an obvious fact, that a filter <code>(f n &amp;&amp; g n)</code> will produce a smaller or equal sum to <code>g n</code>.</p>
-<p>This allows us to deal with some inequalities produced in our next important proof
-<code>filter_or_sum_eq_filter_add</code>:</p>
-<pre><code class="language-lean">lemma filter_or_sum_eq_filter_add (l₁ : List Nat) (f g : Nat -&gt; Bool) :
-  (l₁.filter (λ n ↦ f n || g n)).sum = (l₁.filter f).sum +
-  (l₁.filter g).sum - (l₁.filter (λ n ↦ f n &amp;&amp; g n)).sum := by
-  induction l₁ with
-  | nil =&gt; simp
-  | cons n ns hl =&gt;
-    repeat rw [List.filter_cons]
-    by_cases g n
-    case pos hg =&gt;
-      repeat rw [hg];
-      by_cases f n
-      case pos hf =&gt;
-        simp [hf]
-        rw [ Nat.add_sub_assoc
-             (Nat.add_le_add_left (filter_f_g_sum_le_filter_g_sum _ _ _) n)
-           , Nat.add_sub_add_left
-           , Nat.add_assoc]
-        apply congrArg (n + · )
-        rw [← Nat.add_sub_assoc (filter_f_g_sum_le_filter_g_sum _ _ _)]
-        exact hl
-      case neg hf =&gt;
-        simp [hf]
-        rw [← Nat.add_assoc]
-        conv =&gt; rhs; lhs; lhs; rw [Nat.add_comm]
-        rw [Nat.add_sub_assoc (filter_f_g_sum_le_filter_g_sum _ _ _), Nat.add_assoc]
-        apply congrArg (n + · )
-        rw [← Nat.add_sub_assoc (filter_f_g_sum_le_filter_g_sum _ _ _)]
-        exact hl
-    case neg hg =&gt;
-      repeat simp [hg]
-      by_cases f n
-      case pos hf =&gt;
-        simp [hf]
-        rw [Nat.add_sub_assoc (filter_f_g_sum_le_filter_g_sum _ _ _), Nat.add_assoc]
-        apply congrArg (n + · )
-        rw [← Nat.add_sub_assoc (filter_f_g_sum_le_filter_g_sum _ _ _)]
-        exact hl
-      case neg hf =&gt;
-        simp [hf]
-        exact hl
+<p>A very simple solution is to filter the even element of this list, and sum them
+like so:</p>
+<pre><code class="language-lean">def even_fibs' (i : Nat) : List Nat := (Fibs i).filter (· % 2 == 0)
+
+#eval (even_fibs' 33).sum -- 4613732
 </code></pre>
-<h1 id="conclusion"><a class="header" href="#conclusion">Conclusion</a></h1>
-<p>Thereby, this completes the computer-aided proof of the first Euler problem.</p>
-<p>I am not a lean expert.
-It took me 3 weeks to eek this out.
-I don't know why I did this to myself.</p>
+<h2 id="removing-filter"><a class="header" href="#removing-filter">Removing <code>filter</code></a></h2>
+<p>By observing the fibs sequence, we can see that every even number is every third element.</p>
+<p>\[1, 1, \underline{2}, 3, 5, \underline{8}, 13, 21, \underline{34}, 55, 89, \underline{144}, \dots \]</p>
+<p>We can prove this by showing that every <code>nth</code> Fibonacci number is even if, and only if, n is a multiple of 3, plus 2.</p>
+<pre><code class="language-lean">theorem even_nth {i : Nat} : 3 ∣ i ↔ Even (nth (i + 2)) := by
+  apply Iff.intro
+  . intro h
+    rw [dvd_iff_exists_eq_mul_left] at h
+    have ⟨c, hc⟩ := h; rw [hc]
+    apply even_for_3_mul
+  . intro h;
+    contrapose h
+    apply Nat.emod_pos_of_not_dvd at h
+    apply exists_ne_dvd_3 at h
+    cases h
+    case inl h =&gt;
+      have ⟨c, ch⟩ := h
+      simp [ch]; apply odd_for_3_mul_add_1
+    case inr h =&gt;
+      have ⟨c, ch⟩ := h
+      simp [ch]; apply odd_for_3_mul_add_2
+</code></pre>
+<p>So with minimal modification we can define a new sequence, <code>FibsEven</code>,
+which should produce every even Fibonacci number</p>
+<pre><code class="language-lean">def FibsEven (index : Nat) : List Nat :=
+  let rec impl (index a b: Nat) : List Nat :=
+    let c := a + b
+    let a' := b + c
+    let b' := c + a'
+    match index with
+    | 0 =&gt; [c]
+    | 1 =&gt; [c, a' + b']
+    | (i + 1) =&gt; c :: impl i a' b'
+  impl index 1 1
+</code></pre>
+<p>And indeed, a cursory evaluation of the outputs is promising for the first couple of terms:</p>
+<pre><code class="language-lean">#eval FibsEven 7 -- [2, 8, 34, 144, 610, 2584, 10946, 46368]
+#eval even_fibs' 7 -- [2, 8, 34, 144, 610, 2584, 10946, 46368]
+
+example : even_fibs' 2  = FibsEven 0 := by rfl
+example : even_fibs' 5  = FibsEven 1 := by rfl
+example : even_fibs' 8  = FibsEven 2 := by rfl
+example : even_fibs' 11 = FibsEven 3 := by rfl
+</code></pre>
+<p>We can in-fact prove that for every <code>nth</code> index in <code>FibsEven</code>,
+this matches a multiple of 3 (+ 2) in <code>Fibs</code>, which proves that our sequence represents all
+even members of <code>Fibs</code>.</p>
+<pre><code class="language-lean">theorem as_fibs {i : Nat} : Fibs.nth (i * 3 + 2) = nth i := by apply impl_to_fibs
+
+theorem impl_to_fibs (i : Nat) : Fibs.impl_index a b (i * 3 + 2) = impl_index a b i := by
+  unfold Fibs.impl_index impl_index
+  induction i generalizing a b with
+  | zero =&gt; simp
+  | succ i' hi =&gt;
+    have : (i' + 1) * 3 + 2 = i' * 3 + 2 + 3 := by ring
+    rw [this]
+    repeat
+    conv =&gt; lhs; lhs; rw [← Fibs.impl_cons]
+    conv =&gt; lhs; apply List.getLast_cons; apply Fibs.impl_neq_nil
+    conv =&gt; lhs; lhs; rw [← Fibs.impl_cons]
+    conv =&gt; lhs; apply List.getLast_cons; apply Fibs.impl_neq_nil
+    conv =&gt; lhs; lhs; rw [← Fibs.impl_cons]
+    conv =&gt; lhs; apply List.getLast_cons; apply Fibs.impl_neq_nil
+    conv =&gt; rhs; lhs; rw [← impl_cons]
+    conv =&gt; rhs; apply List.getLast_cons; apply impl_neq_nil
+    have : b + (a + b) = a + 2*b := by ring
+    rw [this]
+    have : a + b + (a + 2 * b) = 2 * a + 3 * b := by ring
+    rw [this]
+    apply hi
+</code></pre>
+<p>We must now show that <code>fibs_even'</code> is equivalent to <code>FibsEven</code>.</p>
+<p>We can first do this by removing the tricky <code>filter</code>. This is done by making a more easy to
+manipulate <code>map</code> function across the indices which give even members.</p>
+<pre><code class="language-lean">theorem even_fibs'_eq_map (i : Nat) :
+  even_fibs' (i * 3 + 2) = (List.range' 2 (i + 1) 3 |&gt; List.map Fibs.nth) := by
+  unfold even_fibs'
+  rw [Fibs.nth_map_eq, List.filter_map]
+  have : (fun x ↦ x % 2 == 0) ∘ Fibs.nth = (fun x ↦ (Fibs.nth x % 2) == 0) := by rfl
+  rw [this]; clear this
+  apply congrArg
+  induction i with
+  | zero =&gt;
+    simp;
+    repeat unfold List.range; repeat (unfold List.range.loop; simp)
+  | succ i' hi =&gt;
+    have : (i' + 1) * 3 + 2 + 1 = i' * 3 + 2 + 1 + 3 := by ring
+    rw [this]; clear this
+    rw [List.range_add, List.filter_append, hi]
+    simp [List.range_succ, List.filter_cons, mod_2_even.eq]
+    have : i' * 3 + 2 + 1 + 2 = (i' + 1) * 3 + 2 := by ring
+    simp [ this
+         , Fibs.even_for_3_mul
+         , Nat.not_even_iff_odd.mpr (Fibs.odd_for_3_mul_add_1 i')
+         , Nat.not_even_iff_odd.mpr (Fibs.odd_for_3_mul_add_2 i')
+         ]
+    rw [Nat.add_comm (m:=2), Nat.mul_comm, ← List.range'_concat]
+</code></pre>
+<p>Which is the stepping stone which lets us show that <code>even_fibs'</code> and <code>FibsEven</code> are equivalent:</p>
+<pre><code class="language-lean">theorem even_fibs'_eq_fibseven {i : Nat} : even_fibs' (i * 3 + 2) = FibsEven i := by
+  rw [even_fibs'_eq_map]
+  induction i with
+  | zero =&gt; simp
+  | succ i' hi =&gt;
+    rw [List.range'_concat, List.map_append, FibsEven.succ_eq, hi]
+    simp
+    have : 2 + 3 * (i' + 1) = (i' + 1) * 3 + 2 := by ring
+    rw [this, FibsEven.as_fibs]
+</code></pre>
+<h2 id="removing-sum"><a class="header" href="#removing-sum">Removing Sum</a></h2>
+<p>What of the sum function? For this, let's examine our sequence of even Fibonacci sums:</p>
+<pre><code class="language-lean">#eval (List.range 7).map (λ n ↦ (FibsEven n).sum)  -- [2, 10, 44, 188, 798, 3382, 14328]
+</code></pre>
+<p>The sequence is:</p>
+<p>\[2, 10, 44, 188, 798, 3382, 14328, \dots \]</p>
+<p>Which looks like it may be a Fibonacci sequence with some manipulation. But we don't need
+to figure it out ourselves, the <a href="https://oeis.org/A099919" title="OEIS Sequence A099919">Online Encyclopedia of Integer Sequences</a> knows what this sequence is, which gives some hints on its relationship to other sequences.</p>
+<p>By playing around with some definitions, we can eventually reach this manipulation:</p>
+<pre><code class="language-lean">#eval (List.range 7).map (λ n ↦ Fibs.nth (3 * n + 4) / 2)  -- [2, 10, 44, 188, 798, 3382, 14328]
+</code></pre>
+<p>So let's prove that it is equivalent:</p>
+<pre><code class="language-lean">theorem sum_eq (i : Nat) :
+  (FibsEven i).sum = Fibs.nth (3 * i + 4) / 2 := by
+  induction i with
+  | zero =&gt; simp
+  | succ i' hi =&gt;
+    rw [ succ_eq
+       , List.sum_append
+       , List.sum_singleton
+       , hi
+       , ← as_fibs]
+    have : 3 * (i' + 1) + 4 = 3 * i' + 4 + 3 := by ring
+    rw [this]
+    conv =&gt; rhs; rw [Fibs.nth_succ_eq]
+    conv =&gt; rhs; lhs; lhs; rw [Fibs.nth_succ_eq]
+    ring_nf
+    rw [Nat.add_div_of_dvd_right]
+    . simp; ring
+    . simp
+</code></pre>
+<p>Which finally let's us show that <code>fibs_even'.sum</code> can be written without <code>filter</code> or <code>sum</code>:</p>
+<pre><code class="language-lean">theorem even_fibs'_sum {i : Nat} :
+  (even_fibs' (i * 3 + 2)).sum = Fibs.nth (3 * i + 4) / 2 := by
+  rw [even_fibs'_eq_fibseven]
+  apply FibsEven.sum_eq
+</code></pre>
 
                     </main>
 
