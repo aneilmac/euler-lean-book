@@ -3,7 +3,9 @@ authors = ["Archibald Neil MacDonald"]
 language = "en"
 multilingual = false
 src = "src"
-title = "Notes on Lean4"
+title = "Lean4 Commonplace Workbook"
+description = "Personal workbook on solving Euler Lean4 problems"
+git-repository-url = "https://github.com/aneilmac/euler-lean-book/tree/main/src"
 
 [output.html]
 mathjax-support = true
